@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "fsm.h"
 #include "main.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -59,7 +59,16 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart->Instance == USART2){
 
+		buffer[index_buffer++] = temp;
+		if(index_buffer == 30) index_buffer = 0;
+
+		buffer_flag = 1;
+		HAL_UART_Receive_IT(&huart2, &temp, 1);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -93,7 +102,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UART_Receive_IT(&huart2, &temp, 1);
+  HAL_ADC_Start (& hadc1 );
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -101,10 +111,13 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-  }
+	  if(buffer_flag == 1){
+	         command_parser_fsm();
+	         buffer_flag = 0;
+	     }
+	  uart_communication_fsm();
   /* USER CODE END 3 */
+}
 }
 
 /**
