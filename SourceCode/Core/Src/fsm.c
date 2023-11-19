@@ -8,9 +8,7 @@
 #include "fsm.h"
 #define MAX_BUFFER_SIZE  30
 uint8_t temp ;
-uint8_t buffer[MAX_BUFFER_SIZE];
-uint8_t checkString[]="";
-uint8_t index_buffer = 0;
+uint8_t checkString[MAX_BUFFER_SIZE]="";
 uint8_t buffer_flag = 0;
 uint32_t ADC_value=0;
 #define Startcmd 0
@@ -41,7 +39,7 @@ switch (status) {
 			if(strcmp(checkString,"OK")==0) cmd_flag=10;
 		}
 		else {
-			 strcat(checkString, temp);
+			 strcat(checkString, (char*)&temp);
 		}
 		break;
 	default:
@@ -59,6 +57,7 @@ void uart_communication_fsm()
 			{
 				ADC_value = HAL_ADC_GetValue(&hadc1);
 				HAL_UART_Transmit(&huart2, (void *)str, sprintf(str, "!ADC=%d#\r\n",ADC_value), 1000);
+				status=Startcmd;
 				setTimer1(300);
 			}
 			break;
